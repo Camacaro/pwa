@@ -1,0 +1,4 @@
+Levantar server 
+npm install --global http-server
+
+$ http-server -p
