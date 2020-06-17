@@ -2,3 +2,9 @@ Levantar server
 npm install --global http-server
 
 $ http-server -p
+
+
+Crear manifest.json
+Llenar los datos del json y agregar el link
+<link rel="manifest" href="/manifest.webmanifest">
+en todas las paginas, o vistas del aplicativo 

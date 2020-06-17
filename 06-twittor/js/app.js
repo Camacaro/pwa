@@ -1,4 +1,10 @@
 
+// Registrar SW
+if( navigator.serviceWorker ) {
+    navigator.serviceWorker.register('/sw.js')
+}
+
+
 // Referencias de jQuery
 
 var titulo      = $('#titulo');
