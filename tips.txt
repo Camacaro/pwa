@@ -8,3 +8,13 @@ Crear manifest.json
 Llenar los datos del json y agregar el link
 <link rel="manifest" href="/manifest.webmanifest">
 en todas las paginas, o vistas del aplicativo 
+
+
+indexedDB
+
+Base de datos local,
+la diferencia entre el indexedDB con el localstorage
+es para que esta diseñada el localstorage es para poca cantidad 
+de informacion y funciona de manera sincrona en cambio el indexedDB
+es para mayores cantidad de tamaño y puede funcionar de manera asyncrona o
+sincrona 
