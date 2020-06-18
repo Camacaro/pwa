@@ -4,7 +4,7 @@
 
 // 1- Crear la base de datos
 // Nombre:  mensajes
-
+let db = new PouchDB('mensajes')
 
 
 // Objeto a grabar en base de datos
@@ -17,17 +17,34 @@ let mensaje = {
 
 
 // 2- Insertar en la base de datos
-
+// db.put( mensaje ).then( (result) => {
+//     console.log('Registrados');
+// })
 
 
 // 3- Leer todos los mensajes offline
-
+db.allDocs({ include_docs: true, descending: false})
+    .then( doc => {
+        console.log(doc.rows)
+    })
 
 
 
 // 4- Cambiar el valor 'sincronizado' de todos los objetos
 //  en la BD a TRUE
+// db.allDocs({ include_docs: true, descending: false})
+//     .then( docs => {
 
+//         docs.rows.forEach( row => {
+            
+//             let doc = row.doc
+
+//             doc.sincronizado = true;
+
+//             db.put( doc )
+//         });
+        
+//     })
 
 
 
@@ -35,8 +52,17 @@ let mensaje = {
 // cuales estan sincronizados
 // deberá de comentar todo el código que actualiza
 // el campo de la sincronización 
+db.allDocs({ include_docs: true }).then( docs => {
+    
+    docs.rows.forEach( row => {
+        let doc = row.doc
 
-
+        if ( doc.sincronizado = true ) {
+            db.remove( doc )
+        }
+       
+    });
+})
 
 
 
