@@ -140,6 +140,77 @@ postBtn.on('click', function() {
         return;
     }
 
+    console.log('Usuario: ', usuario)
+
+    var data = {
+        mensaje,
+        usuario
+    }
+
+    fetch('api', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify( data )
+
+    })
+    .then( res => res.json() )
+    .then( res => console.log('app.js', res))
+    .catch( err => console.log('app.js error: ', err))
+
     crearMensajeHTML( mensaje, usuario );
 
 });
+
+
+// Obtener Mensajes del servidor Consumir REST
+function getMensajes() {
+
+    // const url = 'http://localhost:3000/api'
+    // Por estar en el mismo servidor
+    const url = 'api'
+
+    fetch( url )
+        .then( res => res.json() )
+        .then( posts => {
+
+            console.log(posts);
+
+            posts.forEach( post => {
+                crearMensajeHTML( post.mensaje, post.user )
+            });
+            
+        })
+
+}
+
+getMensajes()
+
+// Detectar cambios de conexion
+function isOnline() {  
+
+    if( navigator.onLine ) {
+        // tenemos conexion
+        // console.log('Online');
+
+        mdtoast('Online', {
+            interaction: true,
+            interactionTimeout: 1000,
+            actionText: 'OK'
+        })
+
+    } else {
+        // no tenemos conexion
+        // console.log('offline');
+
+        mdtoast('Offline', {
+            interaction: true,
+            actionText: 'OK',
+            type: 'warning'
+        })
+    }
+}
+
+window.addEventListener('online', isOnline)
+window.addEventListener('offline', isOnline)

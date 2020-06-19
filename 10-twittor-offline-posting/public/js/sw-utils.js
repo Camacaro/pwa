@@ -40,3 +40,44 @@ function actualizaCacheStatico( staticCache, req, APP_SHELL_INMUTABLE ) {
 
 }
 
+// Network with cache fallback / update
+function manenjoApiMensajes( cacheName, req ) {
+
+    // Los cache no menejan los POST
+    if( req.clone().method === 'POST' ) {
+        // POSTEO DE UN NUEVO MENSAJE
+
+        // Disponer de tareas asyncronas
+        if ( self.registration.sync  ) {
+
+            return req.clone().text().then( body => {
+            
+                const bodyObj = JSON.parse( body )
+                return guardarMensaje( bodyObj )
+            }) 
+
+        } else {
+            return fetch( req )
+        }
+
+    } else {
+
+        return  fetch( req )
+            .then( res => {
+    
+                if( res.ok ) {
+                    
+                    actualizaCacheDinamico( cacheName, req, res.clone() )
+                    return res.clone()
+    
+                } else {
+    
+                    return caches.match( req )
+                }
+            })
+            .catch( err => {
+                return caches.match( req )
+            })
+    }
+
+}

@@ -2,7 +2,13 @@
 var express = require('express');
 var router = express.Router();
 
-
+const mensajes = [
+  {
+    _id: 'XXX',
+    user: 'spiderman',
+    mensaje: 'Hola Mundo'
+  },
+]
 
 
 
@@ -10,7 +16,26 @@ var router = express.Router();
 
 // Get mensajes
 router.get('/', function (req, res) {
-  res.json('Obteniendo mensajes');
+  // res.json('Obteniendo mensajes');
+  res.json( mensajes )
+});
+
+// Post mensajes
+router.post('/', function (req, res) {
+  
+  const mensaje = {
+    mensaje: req.body.mensaje,
+    user: req.body.user
+  }
+
+  mensajes.push( mensaje)
+
+  console.log( mensaje )
+
+  res.json( {
+    ok: true,
+    mensaje
+  } )
 });
 
 
