@@ -1,7 +1,10 @@
 
 var url = window.location.href;
+// Production
 var swLocation = '/twittor/sw.js';
 
+// Service Worker Register
+var swReg 
 
 if ( navigator.serviceWorker ) {
 
@@ -10,8 +13,19 @@ if ( navigator.serviceWorker ) {
         swLocation = '/sw.js';
     }
 
+    // Cuando se ha terminado de cargar la pagina 
+    window.addEventListener('load', function(){
 
-    navigator.serviceWorker.register( swLocation );
+        navigator.serviceWorker.register( swLocation ).then( function(reg) {
+            
+            // Almacenar registro en una variable
+            swReg = reg
+            // Obtener subscripcion del push 
+            swReg.pushManager.getSubscription().then( verificaSuscripcion )
+
+        });
+    })
+    
 }
 
 
@@ -219,3 +233,134 @@ window.addEventListener('offline', isOnline );
 
 isOnline();
 
+// Notificaciones
+
+function verificaSuscripcion( activadas ) {
+
+    console.log( 'verificaSuscripcion', activadas );
+
+    if( activadas ) {
+
+        btnActivadas.removeClass('oculto')
+        btnDesactivadas.addClass('oculto')
+
+    } else {
+
+        btnActivadas.addClass('oculto')
+        btnDesactivadas.removeClass('oculto')
+    }
+}
+
+// verificaSuscripcion()
+
+function enviarNotificacion() {
+
+    const notificationOpts = {
+        body: 'Este es el cuerpo de la notificacion',
+        icon: 'img/icons/icon-72x72.png'
+    }
+
+    const n = new Notification('Hola mundo', notificationOpts)
+
+    n.onclick = () => {
+        console.log('click');
+    }
+}
+
+function notificarme() {
+
+    if( !window.Notification ) {
+        console.log('Este navegador no soporta notificaciones');
+        return;
+    }
+
+    // Si anteriormente le preguntamos y fue granted o sea que nos dio permiso
+    if( Notification.permission === 'granted' ) {
+
+        // new Notification('Hola Mundo! - granted')
+        enviarNotificacion()
+        
+
+    } else if( Notification.permission !== 'denied' || Notification.permission === 'default' ) {
+        // Preguntar para que acepte la notificacion
+
+        Notification.requestPermission( function(permission ) {
+
+            console.log(permission);
+
+            // Acepto la notificacion
+            if( permission === 'granted' ) {
+                // new Notification('Hola Mundo! - pregunta')
+                enviarNotificacion
+            }
+            
+        })
+    }
+}
+
+// notificarme()
+
+// Get Key
+function getPublicKey() {
+
+    // fetch('api/key')
+    //     .then( res => res.text() )
+    //     .then( console.log )
+
+
+    return fetch('api/key')
+        .then( res => res.arrayBuffer() )
+        // returnar arrgelo, pero como un Unit8array
+        .then( key => new Uint8Array(key) )
+}
+
+// getPublicKey().then( console.log )
+
+btnDesactivadas.on('click', function () {  
+
+    if( !swReg ) return console.log('No hay registro sw')
+
+    getPublicKey().then( function(key){
+
+        /**
+         * userVisibleOnly: true, para indicarle que todas las notificaciones serán visibles para el usuario
+         * applicationServerKey con la clave pública del servidor
+         */
+
+        swReg.pushManager.subscribe({
+
+            userVisibleOnly: true,
+            applicationServerKey: key
+
+        })
+        .then( res => res.toJSON() )
+        .then( suscripcion => {
+            
+            console.log( 'getPublicKey  - suscripcion', suscripcion)
+
+            fetch('api/subscribe', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify( suscripcion )
+            })
+            .then( verificaSuscripcion )
+            .catch( cancelarSuscripcion )
+
+            // verificaSuscripcion(suscripcion)
+        })
+    })
+})
+
+
+function cancelarSuscripcion() {
+
+    swReg.pushManager.getSubscription().then( subs => {
+        subs.unsubscribe().then( () => verificaSuscripcion(false) )
+    })
+}
+
+btnActivadas.on('click', function(){
+    cancelarSuscripcion()
+})

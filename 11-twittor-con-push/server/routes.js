@@ -1,6 +1,7 @@
 // Routes.js - Módulo de rutas
-var express = require('express');
-var router = express.Router();
+const express = require('express');
+const router = express.Router();
+const push = require('./push')
 
 
 const mensajes = [
@@ -39,6 +40,41 @@ router.post('/', function (req, res) {
     mensaje
   });
 });
+
+// Almacenar la subscripcion
+router.post('/subscribe', (req, res) => {
+
+  const suscripcion = req.body
+
+  // console.log( suscripcion )
+  push.addSubscription( suscripcion )
+
+  res.json('subscribe')
+})
+
+// Obtener key
+router.get('/key', (req, res) => {
+
+  const key = push.getKey()
+
+  res.send( key )
+})
+
+// Enviar una notificacion PUSH a las personas 
+// Que nosotros queramos
+// Es ALGO que se controla del lado del server
+router.post('/push', (req, res) => {
+  
+  const post = {
+    titulo: req.body.titulo,
+    cuerpo: req.body.cuerpo,
+    usuario: req.body.usuario
+  }
+
+  push.sendPush( post )
+
+  res.json( post )
+})
 
 
 

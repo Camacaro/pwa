@@ -43,8 +43,19 @@ function actualizaCacheStatico( staticCache, req, APP_SHELL_INMUTABLE ) {
 // Network with cache fallback / update
 function manejoApiMensajes( cacheName, req ) {
 
+    /**
+     * Si viene algo de la peticion
+     * Esto es para no guardar la keys en el cache
+     * 
+     * Aplicando la estrategia de 
+     * 
+     * Network only
+     */
+    if( (req.url.indexOf('/api/key') >= 0) || (req.url.indexOf('/api/subscribe') >= 0) ) {
 
-    if ( req.clone().method === 'POST' ) {
+        return fetch( req );
+
+    } else if ( req.clone().method === 'POST' ) {
         // POSTEO de un nuevo mensaje
 
         if ( self.registration.sync ) {

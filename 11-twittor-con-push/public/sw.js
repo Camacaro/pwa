@@ -77,8 +77,6 @@ self.addEventListener('activate', e => {
 
 
 
-
-
 self.addEventListener( 'fetch', e => {
 
     let respuesta;
@@ -131,4 +129,105 @@ self.addEventListener('sync', e => {
 
 
 
+});
+
+
+// Escuchar Push
+self.addEventListener('push', e => {
+
+    // console.log(e);
+    // console.log( e.data.text() )
+
+    const data = JSON.parse( e.data.text() )
+
+    // console.log( data ); 
+
+    const title = data.titulo
+
+    const options = {
+        body: data.cuerpo,
+        // icon: 'img/icons/icon-72x72.png', // path relativo o http://
+        icon: `img/avatars/${ data.usuario }.jpg`,
+        badge: 'img/favicon.ico', // icono de los Androi
+        image: 'https://datainfox.com/wp-content/uploads/2017/10/avengers-tower.jpg', // Imagen completa en la notificacion
+        vibrate: [125,75,125,275,200,275,125,75,125,275,200,600,200,600], // como vibrara el telefono [vibrar, no-vibrar, vibrar, no-vibrar]
+        openUrl: '/', // Que abrir al darle click
+        data: { // Informacion dentro de la notificacion
+            url: '/',
+            id: data.usuario
+        },
+        actions: [ // acciones personalizadas al tocar la notificacion, son opciones que salen en la notificacion para ser seleccionada 
+            {// No es remondado hacer esto, ya que es mejor las de por defecto del dispositivo
+                action: 'thor-action',
+                title: 'Thor',
+                icon: 'img/avatar/thor.jpg'
+            }, 
+            { // los usuarios no sabem que pueden interactuar con ellas 
+                action: 'ironman-action',
+                title: 'Ironman',
+                icon: 'img/avatar/ironman.jpg'
+            }  
+        ]
+    }
+
+    /**
+     * Enviar notificacion al usuario 
+     */
+    e.waitUntil( self.registration.showNotification( title, options ) )
+
+})
+
+// Cuando se cierra la notificacion
+self.addEventListener('notificationclose', e => {
+    
+    console.log('Notificacaion cerrada', e);
+    
+    // event.notification.close();
+
+    // event.waitUntil(
+        
+    // );
+});
+
+// Cuando se hace click en la notificacion
+self.addEventListener('notificationclick', e => {
+    
+    const notificacion = e.notification 
+
+    const accion = e.action
+
+    console.log({notificacion, accion});
+    // console.log('notificacion', notificacion);
+    // console.log('accion', accion);
+    
+    // al tocar mandarme a la url un nuevo tab
+
+    // Agarar todos los tabs del browser
+    const respuesta = clients.matchAll()
+    .then( clientes => {
+
+        // ver si el cliente (tab) esta visible
+        let cliente = clientes.find( c => {
+            return c.visibilityState === 'visible'
+        })
+
+        // Si la consige navego hacia ella 
+        if( cliente !== undefined ) {
+
+            cliente.navigate( notificacion.data.url )
+            cliente.focus()
+
+            // Si no la abro
+        } else {
+            clients.openWindow( notificacion.data.url )
+        }
+
+
+        // Cerrar la notificacion al dar click
+        return notificacion.close();
+    })
+
+    e.waitUntil(
+        respuesta
+    );
 });
