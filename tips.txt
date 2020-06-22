@@ -18,3 +18,48 @@ es para que esta diseñada el localstorage es para poca cantidad
 de informacion y funciona de manera sincrona en cambio el indexedDB
 es para mayores cantidad de tamaño y puede funcionar de manera asyncrona o
 sincrona 
+
+
+
+/*************************************************************************************/
+PWA Angular
+
+Paso 1, instalar
+$ ng add @angular/pwa
+
+Paso 2, configurar la app para que funcione tiene que estar en production
+$ ng build --prod
+
+ARCHIVO SERVICE WORKER
+ngsw-config.json
+
+seria como mi APP_SHELL dodne guardara mis archivos estaticos para el offline
+"resources": {
+    "files": [
+
+Para url se usa esta propiedad, con el ** guardara en cache todo lo que comience con "https://stackpath.bootstrapcdn.com/
+"url": [
+    "https://stackpath.bootstrapcdn.com/**"
+]
+
+Data apis de la app
+"dataGroups": [
+    {
+      "name": "paies-api", // Nombre
+      "url": [ // URLs que me interesan guardar
+        "https://restcountries.eu/rest/v2/lang/es"
+      ],
+      "cacheConfig": {
+        "maxSize": 20, // Cuando es lo maximo que se almacenara 
+        "maxAge": "1h", // El timepo que durara guardada en cache
+        "timeout": "5s" // cuando tiempo quiere que tarde para utilizar el cache al fallar. Si en 5s no tenemos respuesta la obtiene del cache
+        "strategy": 'freshness' | 'performance'
+      }
+    }
+  ]
+
+  freshness: network first then cache
+  performance: cache first con network fallback
+
+Si quisiera aplicar el sw de manera manual puedo buscar en internet como hacerlo 
+o aplicarlo demarea directa en el dist y creandolo desde ahi
